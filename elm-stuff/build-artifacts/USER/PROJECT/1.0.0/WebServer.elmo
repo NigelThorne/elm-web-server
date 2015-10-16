@@ -1,0 +1,129 @@
+Elm.WebServer = Elm.WebServer || {};
+Elm.WebServer.make = function (_elm) {
+   "use strict";
+   _elm.WebServer = _elm.WebServer || {};
+   if (_elm.WebServer.values)
+   return _elm.WebServer.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "WebServer",
+   $Basics = Elm.Basics.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var messageIn = Elm.Native.Port.make(_elm).inboundSignal("messageIn",
+   "WebServer.Request",
+   function (v) {
+      return typeof v === "object" && "id" in v && "url" in v && "body" in v && "action" in v ? {_: {}
+                                                                                                ,id: typeof v.id === "number" ? v.id : _U.badPort("a number",
+                                                                                                v.id)
+                                                                                                ,url: typeof v.url === "string" || typeof v.url === "object" && v.url instanceof String ? v.url : _U.badPort("a string",
+                                                                                                v.url)
+                                                                                                ,body: typeof v.body === "string" || typeof v.body === "object" && v.body instanceof String ? v.body : _U.badPort("a string",
+                                                                                                v.body)
+                                                                                                ,action: typeof v.action === "string" || typeof v.action === "object" && v.action instanceof String ? v.action : _U.badPort("a string",
+                                                                                                v.action)} : _U.badPort("an object with fields `id`, `url`, `body`, `action`",
+      v);
+   });
+   var Response = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,body: c
+             ,id: a
+             ,url: b};
+   });
+   var Request = F4(function (a,
+   b,
+   c,
+   d) {
+      return {_: {}
+             ,action: d
+             ,body: c
+             ,id: a
+             ,url: b};
+   });
+   var view = function (state) {
+      return A2($Basics._op["++"],
+      "The current count is: ",
+      $Basics.toString(state.count));
+   };
+   var respond = F2(function (request,
+   model) {
+      return {_: {}
+             ,body: view(model)
+             ,id: request.id
+             ,url: request.url};
+   });
+   var update = F2(function (action,
+   state) {
+      return function () {
+         switch (action.ctor)
+         {case "Decrement":
+            return _U.replace([["count"
+                               ,state.count - 1]],
+              state);
+            case "Increment":
+            return _U.replace([["count"
+                               ,state.count + 1]],
+              state);}
+         _U.badCase($moduleName,
+         "between lines 22 and 24");
+      }();
+   });
+   var init = {_: {},count: 0};
+   var Decrement = {ctor: "Decrement"};
+   var Increment = {ctor: "Increment"};
+   var input = function (action) {
+      return function () {
+         switch (action)
+         {case "decrement":
+            return Decrement;}
+         return Increment;
+      }();
+   };
+   var interpret = function (request) {
+      return input(request.action);
+   };
+   var messageOut = Elm.Native.Port.make(_elm).outboundSignal("messageOut",
+   function (v) {
+      return {id: v.id
+             ,url: v.url
+             ,body: v.body};
+   },
+   function () {
+      var inputs = messageIn;
+      var actions = A2($Signal.map,
+      interpret,
+      inputs);
+      return A3($Signal.map2,
+      respond,
+      inputs,
+      A3($Signal.foldp,
+      update,
+      init,
+      actions));
+   }());
+   var State = function (a) {
+      return {_: {},count: a};
+   };
+   var main = $Html.text("placeholder");
+   _elm.WebServer.values = {_op: _op
+                           ,main: main
+                           ,State: State
+                           ,Increment: Increment
+                           ,Decrement: Decrement
+                           ,init: init
+                           ,update: update
+                           ,input: input
+                           ,view: view
+                           ,Request: Request
+                           ,Response: Response
+                           ,interpret: interpret
+                           ,respond: respond};
+   return _elm.WebServer.values;
+};

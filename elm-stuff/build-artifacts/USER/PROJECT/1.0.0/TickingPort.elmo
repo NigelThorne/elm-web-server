@@ -1,0 +1,126 @@
+Elm.TickingPort = Elm.TickingPort || {};
+Elm.TickingPort.make = function (_elm) {
+   "use strict";
+   _elm.TickingPort = _elm.TickingPort || {};
+   if (_elm.TickingPort.values)
+   return _elm.TickingPort.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "TickingPort",
+   $Basics = Elm.Basics.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var messageIn = Elm.Native.Port.make(_elm).inboundSignal("messageIn",
+   "TickingPort.Request",
+   function (v) {
+      return typeof v === "object" && "id" in v && "url" in v && "body" in v && "action" in v ? {_: {}
+                                                                                                ,id: typeof v.id === "number" ? v.id : _U.badPort("a number",
+                                                                                                v.id)
+                                                                                                ,url: typeof v.url === "string" || typeof v.url === "object" && v.url instanceof String ? v.url : _U.badPort("a string",
+                                                                                                v.url)
+                                                                                                ,body: typeof v.body === "string" || typeof v.body === "object" && v.body instanceof String ? v.body : _U.badPort("a string",
+                                                                                                v.body)
+                                                                                                ,action: typeof v.action === "string" || typeof v.action === "object" && v.action instanceof String ? v.action : _U.badPort("a string",
+                                                                                                v.action)} : _U.badPort("an object with fields `id`, `url`, `body`, `action`",
+      v);
+   });
+   var view = function (model) {
+      return $Basics.toString(model.count);
+   };
+   var respond = F2(function (request,
+   model) {
+      return {_: {}
+             ,body: view(model)
+             ,id: request.id
+             ,url: request.url};
+   });
+   var update = F2(function (action,
+   model) {
+      return function () {
+         switch (action.ctor)
+         {case "Decrement":
+            return _U.replace([["count"
+                               ,model.count - 1]],
+              model);
+            case "Increment":
+            return _U.replace([["count"
+                               ,model.count + 1]],
+              model);}
+         _U.badCase($moduleName,
+         "between lines 37 and 39");
+      }();
+   });
+   var Decrement = {ctor: "Decrement"};
+   var Increment = {ctor: "Increment"};
+   var interpret = function (request) {
+      return function () {
+         var _v1 = request.action;
+         switch (_v1)
+         {case "decrement":
+            return Decrement;
+            case "increment":
+            return Increment;}
+         return Increment;
+      }();
+   };
+   var init = {_: {},count: 0};
+   var messageOut = Elm.Native.Port.make(_elm).outboundSignal("messageOut",
+   function (v) {
+      return {id: v.id
+             ,url: v.url
+             ,body: v.body};
+   },
+   function () {
+      var input = messageIn;
+      var action = A2($Signal.map,
+      interpret,
+      input);
+      return A3($Signal.map2,
+      respond,
+      input,
+      A3($Signal.foldp,
+      update,
+      init,
+      action));
+   }());
+   var Model = function (a) {
+      return {_: {},count: a};
+   };
+   var Response = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,body: c
+             ,id: a
+             ,url: b};
+   });
+   var Request = F4(function (a,
+   b,
+   c,
+   d) {
+      return {_: {}
+             ,action: d
+             ,body: c
+             ,id: a
+             ,url: b};
+   });
+   var main = $Html.text("placeholder");
+   _elm.TickingPort.values = {_op: _op
+                             ,main: main
+                             ,Request: Request
+                             ,Response: Response
+                             ,Model: Model
+                             ,init: init
+                             ,Increment: Increment
+                             ,Decrement: Decrement
+                             ,update: update
+                             ,view: view
+                             ,interpret: interpret
+                             ,respond: respond};
+   return _elm.TickingPort.values;
+};
